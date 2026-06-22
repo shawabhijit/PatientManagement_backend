@@ -1,0 +1,16 @@
+What you will Learn :
+
+-> Java , Spring boot & docker microservices
+-> Postgres Database
+-> Load Balancers & API Gateways to route requests
+-> Event driven communication - Kafka
+-> Real time communication - rest & grpc
+-> Authenticate Users & secure APIs using bearer tokes
+-> Integration tests
+-> Deploying to AWS using localstack and infrastructure as code
+
+Need to have :
+
+-> Java jdk 21
+-> Docker desktop
+-> any IDE which support java development like Intellij IDEA
