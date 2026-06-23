@@ -1,0 +1,12 @@
+### Creates a new patient
+POST http://localhost:8001/patients
+Content-Type: application/json
+
+{
+  "name" : "Abhjit sahoo",
+  "email": "abhijitsahoo@gmail.com",
+  "address": "123 bankura west bengal",
+  "dateOfBirth": "2003-09-16",
+  "registeredDate": "2026-06-21"
+}
+###

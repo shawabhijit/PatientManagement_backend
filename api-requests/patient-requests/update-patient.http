@@ -1,0 +1,13 @@
+### update an exixting patient entity
+PUT http://localhost:8001/patients/123e4567-e89b-12d3-a456-426614174001
+Content-Type: application/json
+
+{
+  "name" : "Sujit karmakar",
+  "email": "sujitkarmakar12@gmail.com",
+  "address": "123 Bishnupur west bengal",
+  "dateOfBirth": "2003-09-16",
+  "registeredDate": "2026-06-21"
+}
+
+###
