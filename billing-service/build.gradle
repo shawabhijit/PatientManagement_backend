@@ -1,0 +1,59 @@
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '4.1.0'
+	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.google.protobuf' version '0.9.4'
+}
+
+group = 'com.pm'
+version = '0.0.1-SNAPSHOT'
+description = 'billing-service'
+
+ext {
+//	grpcVersion = '1.75.0'
+}
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	// Spring gRPC BOM — manages grpc versions for you
+	implementation platform('org.springframework.grpc:spring-grpc-dependencies:1.0.3')
+
+	// Spring gRPC starter (server + client)
+	implementation 'org.springframework.grpc:spring-grpc-spring-boot-starter'
+	implementation 'io.grpc:grpc-services'
+
+	implementation 'org.projectlombok:lombok'
+
+	// Java 9+ annotation replacement (jakarta, not tomcat)
+	compileOnly 'jakarta.annotation:jakarta.annotation-api:2.1.1'
+	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+protobuf {
+	protoc {
+		artifact = 'com.google.protobuf:protoc:4.29.1'
+	}
+	plugins {
+		grpc {
+			artifact = "io.grpc:protoc-gen-grpc-java"
+		}
+	}
+	generateProtoTasks {
+		all()*.plugins { grpc {} }
+	}
+}
+
+tasks.named('test') {
+
+}
