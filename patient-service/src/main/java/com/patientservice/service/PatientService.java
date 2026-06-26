@@ -4,6 +4,7 @@ import com.patientservice.DTO.PatientRequestDto;
 import com.patientservice.DTO.PatientResponseDto;
 import com.patientservice.exception.EmailAlreadyExistsException;
 import com.patientservice.exception.PatientNotFoundException;
+import com.patientservice.grpc.BillingServiceGrpcClient;
 import com.patientservice.model.Patient;
 import com.patientservice.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,6 +19,7 @@ import java.util.UUID;
 public class PatientService {
 
     private final PatientRepository patientRepository;
+    private final BillingServiceGrpcClient billingServiceGrpcClient;
 
     public List<PatientResponseDto> getPatients () {
         List<Patient> patients = patientRepository.findAll();
@@ -30,6 +32,8 @@ public class PatientService {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDto.getEmail());
         }
         Patient patient = patientRepository.save(patientDtoToEntity(patientRequestDto));
+        // creating a billing account for the patient
+        billingServiceGrpcClient.createBillingAccount(patient.getId().toString() , patient.getName() , patient.getEmail());
         return patientEntityToDto(patient);
     }
 
