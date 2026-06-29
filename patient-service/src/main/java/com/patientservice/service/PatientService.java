@@ -5,6 +5,7 @@ import com.patientservice.DTO.PatientResponseDto;
 import com.patientservice.exception.EmailAlreadyExistsException;
 import com.patientservice.exception.PatientNotFoundException;
 import com.patientservice.grpc.BillingServiceGrpcClient;
+import com.patientservice.kafka.KafkaProducer;
 import com.patientservice.model.Patient;
 import com.patientservice.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ public class PatientService {
 
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
+    private final KafkaProducer kafkaProducer;
 
     public List<PatientResponseDto> getPatients () {
         List<Patient> patients = patientRepository.findAll();
@@ -32,8 +34,12 @@ public class PatientService {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDto.getEmail());
         }
         Patient patient = patientRepository.save(patientDtoToEntity(patientRequestDto));
-        // creating a billing account for the patient
+        // creating a billing account for the patient (GRPC Request)
         billingServiceGrpcClient.createBillingAccount(patient.getId().toString() , patient.getName() , patient.getEmail());
+
+        // sending an event to kafka producer which is new patient created
+        kafkaProducer.sendEvent(patient);
+
         return patientEntityToDto(patient);
     }
 
