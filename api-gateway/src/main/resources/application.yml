@@ -1,0 +1,36 @@
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            ## REST CLIENT -> http://localhost:8004/api/patients
+            ## API Gateway -> http://patient-service:8001/patients (as strip-prefix is 1)
+            ## patient-service -> /patients -> Patients array
+            - id: patient-service-route
+              uri: http://patient-service-01:8001
+              predicates:
+                - Path=/api/patients/**
+              filters:
+                - StripPrefix=1
+            ## Rest-Client -> http://localhost:8004/api-docs/patients
+            ## API-Gateway -> http://patient-service-01:8001/v3/api-docs
+            - id: api-docs-patient-route
+              uri: http://patient-service-01:8001
+              predicates:
+                - Path=/api-docs/patients
+              filters:
+                - RewritePath=/api-docs/patients,/v3/api-docs
+
+            - id: patient-swagger-ui
+              uri: http://patient-service-01:8001
+              predicates:
+                - Path=/swagger-ui/**
+
+
+server:
+  port: 8004
+
