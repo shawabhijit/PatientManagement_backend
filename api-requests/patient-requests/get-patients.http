@@ -1,5 +1,6 @@
 ### GET request to get all patients
 ### Updated - now call to API-Gateway path
 GET http://localhost:8004/api/patients
+Authorization: Bearer {{token}}
 
 ###
