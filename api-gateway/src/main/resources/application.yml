@@ -7,6 +7,15 @@ spring:
       server:
         webflux:
           routes:
+            ## http://localhost:8004/auth/api/login
+            ## API Gateway --> http://auth-service:8005/api/login
+            - id: auth-service-route
+              uri: http://auth-service:8005
+              predicates:
+                - Path=/auth/**
+              filters:
+                - StripPrefix=1
+
             ## REST CLIENT -> http://localhost:8004/api/patients
             ## API Gateway -> http://patient-service:8001/patients (as strip-prefix is 1)
             ## patient-service -> /patients -> Patients array
