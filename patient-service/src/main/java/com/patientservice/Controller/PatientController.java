@@ -13,6 +13,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,20 +35,26 @@ public class PatientController {
         return ResponseEntity.ok().body(patientService.getPatients());
     }
 
+    @Operation(summary = "Get patient by ID")
+    @GetMapping("/{id}")
+    public ResponseEntity<PatientResponseDto> getPatient(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(patientService.getPatientById(id));
+    }
+
     @PostMapping
     @Operation(
             summary = "Create Patient",
             description = "Creates a new patient record in the system."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Patient created successfully"),
+            @ApiResponse(responseCode = "201", description = "Patient created successfully"),
             @ApiResponse(responseCode = "400", description = "Validation failed"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<PatientResponseDto> createPatient(
             @Validated({Default.class, CreatePatientValidationGroup.class}) @RequestBody PatientRequestDto patientRequestDto
     ) {
-        return ResponseEntity.ok().body(patientService.createPatient(patientRequestDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(patientService.createPatient(patientRequestDto));
     }
 
     @PutMapping("/{id}")

@@ -29,6 +29,13 @@ public class PatientService {
                 .map(this::patientEntityToDto).toList();
     }
 
+    public PatientResponseDto getPatientById(UUID patientId) {
+        Patient patient = patientRepository.findById(patientId).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with this id : " + patientId)
+        );
+        return patientEntityToDto(patient);
+    }
+
     public PatientResponseDto createPatient(PatientRequestDto patientRequestDto) {
         if(patientRepository.existsByEmail(patientRequestDto.getEmail())) {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDto.getEmail());

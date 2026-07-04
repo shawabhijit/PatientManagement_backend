@@ -14,3 +14,11 @@ Need to have :
 -> Java jdk 21
 -> Docker desktop
 -> any IDE which support java development like Intellij IDEA
+
+
+Deploying our code:
+
+-> AWS (Amazon web service)- not Free
+-> LocalStack - Aws simulator we can run locally
+-> The deployment code and approach are compatible with real AWS
+

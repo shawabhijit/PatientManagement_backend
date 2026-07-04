@@ -1,0 +1,4 @@
+### GET request to fetch patient by id
+GET http://localhost:8004/api/patients/123e4567-e89b-12d3-a456-426614174000
+Authorization: Bearer {{token}}
+###

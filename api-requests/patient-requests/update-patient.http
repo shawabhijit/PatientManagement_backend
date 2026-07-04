@@ -1,5 +1,6 @@
 ### update an exixting patient entity
-PUT http://localhost:8001/patients/123e4567-e89b-12d3-a456-426614174001
+PUT http://localhost:8004/api/patients/123e4567-a456-426614174001
+Authorization: Bearer {{token}}
 Content-Type: application/json
 
 {
