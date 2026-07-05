@@ -9,12 +9,13 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "billing_accounts" , indexes = {
-        @Index(name = "idx_patient_id", columnList = "patientId")
+        @Index(name = "idx_patient_id", columnList = "patientId"),
+        @Index(name = "idx_billing_status", columnList = "status")
 })
 @Getter
 @Setter
@@ -47,8 +48,8 @@ public class BillingAccount {
     private BillingStatus status;
 
     @CreationTimestamp
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
     @UpdateTimestamp
-    private LocalDate updatedAt;
+    private LocalDateTime updatedAt;
 
 }
