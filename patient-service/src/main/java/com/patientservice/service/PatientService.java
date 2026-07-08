@@ -7,6 +7,7 @@ import com.patientservice.exception.PatientNotFoundException;
 import com.patientservice.grpc.BillingServiceGrpcClient;
 import com.patientservice.kafka.KafkaProducer;
 import com.patientservice.model.Patient;
+import com.patientservice.model.enums.PatientStatus;
 import com.patientservice.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,12 @@ public class PatientService {
                 .map(this::patientEntityToDto).toList();
     }
 
+    public List<PatientResponseDto> getPatientsByStatus (PatientStatus status) {
+        List<Patient> patients = patientRepository.findByStatus(status);
+        return patients.stream()
+                .map(this::patientEntityToDto).toList();
+    }
+
     public PatientResponseDto getPatientById(UUID patientId) {
         Patient patient = patientRepository.findById(patientId).orElseThrow(
                 () -> new PatientNotFoundException("Patient not found with this id : " + patientId)
@@ -40,7 +47,9 @@ public class PatientService {
         if(patientRepository.existsByEmail(patientRequestDto.getEmail())) {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDto.getEmail());
         }
-        Patient patient = patientRepository.save(patientDtoToEntity(patientRequestDto));
+        Patient patient = patientDtoToEntity(patientRequestDto);
+        patient.setStatus(PatientStatus.ACTIVE);
+        patient = patientRepository.save(patient);
         // creating a billing account for the patient (GRPC Request)
         billingServiceGrpcClient.createBillingAccount(patient.getId().toString() , patient.getName() , patient.getEmail());
 
@@ -69,7 +78,12 @@ public class PatientService {
     }
 
     public void deletePatient(UUID patientId) {
-        patientRepository.deleteById(patientId);
+        Patient patient = patientRepository.findById(patientId).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with this id : " + patientId)
+        );
+
+        patient.setStatus(PatientStatus.INACTIVE);
+        patientRepository.save(patient);
     }
 
     public PatientResponseDto patientEntityToDto (Patient patient) {
@@ -77,6 +91,7 @@ public class PatientService {
                 .id(patient.getId().toString())
                 .name(patient.getName())
                 .email(patient.getEmail())
+                .status(patient.getStatus().toString())
                 .address(patient.getAddress())
                 .dateOfBirth(patient.getDateOfBirth().toString())
                 .build();

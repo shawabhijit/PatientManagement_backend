@@ -3,6 +3,7 @@ package com.pm.billingservice.service;
 import com.pm.billingservice.DTO.BillingAccountGrpcResponse;
 import com.pm.billingservice.DTO.BillingAccountRequest;
 import com.pm.billingservice.DTO.BillingAccountResponse;
+import com.pm.billingservice.DTO.BillingAccountUpdateRequest;
 import com.pm.billingservice.exceptions.AccountExitsException;
 import com.pm.billingservice.model.BillingAccount;
 import com.pm.billingservice.model.enums.BillingStatus;
@@ -10,6 +11,7 @@ import com.pm.billingservice.repository.BillingAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,6 +59,29 @@ public class BillingAccountService {
                 account.getId(),
                 account.getStatus()
         );
+    }
+
+    public BillingAccountResponse updateBillingAccount(UUID patientId,
+                                                       BillingAccountUpdateRequest request) {
+        BillingAccount account = billingAccountRepository.findByPatientId(patientId)
+                .orElseThrow(() -> new AccountExitsException("Account not found with patientId: " + patientId));
+
+        account.setPatientName(request.getPatientName());
+        account.setPatientEmail(request.getPatientEmail());
+        account.setStatus(request.getStatus());
+        account.setUpdatedAt(LocalDateTime.now());
+
+        account = billingAccountRepository.save(account);
+
+        return entityToDto(account);
+    }
+
+    public void deleteBillingAccount(UUID patientId) {
+        if(!billingAccountRepository.existsByPatientId(patientId)) {
+            throw new AccountExitsException("Billing account is not present with this patient id : " +
+                    patientId);
+        }
+        billingAccountRepository.deleteByPatientId(patientId);
     }
 
     private BillingAccountResponse entityToDto(BillingAccount account) {

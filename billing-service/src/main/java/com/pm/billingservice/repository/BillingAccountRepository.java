@@ -12,4 +12,5 @@ public interface BillingAccountRepository extends JpaRepository<BillingAccount ,
     Optional<BillingAccount> findByPatientId(UUID patientId);
     List<BillingAccount> findByStatus(BillingStatus status);
     boolean existsByPatientId(UUID patientId);
+    void deleteByPatientId(UUID patientId);
 }

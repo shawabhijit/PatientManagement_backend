@@ -33,6 +33,7 @@ public class BillingGrpcService extends BillingServiceImplBase {
                 .patientEmail(billingRequest.getEmail())
                 .patientName(billingRequest.getName())
                 .build();
+
         BillingAccountGrpcResponse billingAccountGrpcResponse = billingAccountService.createBillingAccount(request);
 
         BillingResponse response = BillingResponse.newBuilder()

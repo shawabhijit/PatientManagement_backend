@@ -1,5 +1,6 @@
 package com.patientservice.model;
 
+import com.patientservice.model.enums.PatientStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -33,6 +34,10 @@ public class Patient {
 
     @NotNull
     private String address;
+
+    @Enumerated(EnumType.STRING)
+    @NotNull
+    private PatientStatus status;
 
     @NotNull
     private LocalDate dateOfBirth;

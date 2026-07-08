@@ -1,8 +1,12 @@
 package com.pm.billingservice.controller;
 
 import com.pm.billingservice.DTO.BillingAccountResponse;
+import com.pm.billingservice.DTO.BillingAccountUpdateRequest;
 import com.pm.billingservice.service.BillingAccountService;
+import jakarta.validation.groups.Default;
+import lombok.Builder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -31,5 +35,13 @@ public class BillingAccountController {
     @GetMapping(value = "/accounts" , params = "status")
     public ResponseEntity<List<BillingAccountResponse>> getAccountsByStatus(@RequestParam String status) {
         return ResponseEntity.ok().body(billingAccountService.getByStatus(status));
+    }
+
+    @PutMapping("/accounts/{patientId}/update")
+    public ResponseEntity<BillingAccountResponse> updateAccount(
+            @PathVariable UUID patientId,
+            @Validated @RequestBody BillingAccountUpdateRequest request
+    ) {
+        return ResponseEntity.ok().body(billingAccountService.updateBillingAccount(patientId,request));
     }
 }

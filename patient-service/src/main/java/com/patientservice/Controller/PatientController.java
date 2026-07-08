@@ -3,15 +3,14 @@ package com.patientservice.Controller;
 import com.patientservice.DTO.PatientRequestDto;
 import com.patientservice.DTO.PatientResponseDto;
 import com.patientservice.DTO.validators.CreatePatientValidationGroup;
+import com.patientservice.model.enums.PatientStatus;
 import com.patientservice.service.PatientService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import jakarta.validation.groups.Default;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -33,6 +32,14 @@ public class PatientController {
     @Operation(summary = "Get Patients")
     public ResponseEntity<List<PatientResponseDto>> getAllPatients() {
         return ResponseEntity.ok().body(patientService.getPatients());
+    }
+
+    @GetMapping(params = "status")
+    @Operation(summary = "Get Patients by their status, ex. ACTIVE/INACTIVE")
+    public ResponseEntity<List<PatientResponseDto>> getPatientsByStatus(
+            @RequestParam PatientStatus status
+    ) {
+        return ResponseEntity.ok().body(patientService.getPatientsByStatus(status));
     }
 
     @Operation(summary = "Get patient by ID")
@@ -77,7 +84,7 @@ public class PatientController {
     }
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Delete a patient")
+    @Operation(summary = "Updating the patient status to INACTIVE")
     public ResponseEntity<String> deletePatient(@PathVariable UUID id) {
         patientService.deletePatient(id);
         return ResponseEntity.ok().body("Patient is Deleted.");
