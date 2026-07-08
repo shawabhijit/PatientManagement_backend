@@ -4,9 +4,9 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "name" : "Bishal pal",
-  "email": "Bishal07@gmail.com",
-  "address": "123 bankura west bengal",
+  "name" : "Bhaivab adora",
+  "email": "Bhaivab123@gmail.com",
+  "address": "123 kolkata west bengal",
   "dateOfBirth": "2003-09-16",
   "registeredDate": "2026-06-21"
 }

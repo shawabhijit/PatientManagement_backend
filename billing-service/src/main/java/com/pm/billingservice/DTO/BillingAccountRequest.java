@@ -3,16 +3,14 @@ package com.pm.billingservice.DTO;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder
 public class BillingAccountRequest {
     @NotBlank(message = "Patient ID is required.")
