@@ -4,9 +4,11 @@ import com.pm.billingservice.model.enums.InvoiceStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -35,24 +37,27 @@ public class Invoice {
     @Column(unique = true)
     @NotNull
     private String invoiceNumber;
-    @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal consultationFee;
-    @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal medicineFee;
-    @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal labFee;
-    @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal discount;
-    @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal tax;
-    @NotNull
+    @Column(nullable = false, precision = 19, scale = 2)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
     @NotNull
     private InvoiceStatus status;
+
     @NotNull
-    private LocalDate issueDate;
+    @CreationTimestamp
+    private LocalDateTime issueDate;
+
     @NotNull
-    private LocalDate dueDate;
+    private LocalDateTime dueDate;
 }

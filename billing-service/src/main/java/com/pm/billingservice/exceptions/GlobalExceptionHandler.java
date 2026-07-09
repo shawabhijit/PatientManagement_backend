@@ -22,4 +22,14 @@ public class GlobalExceptionHandler {
         errors.put("message", "Billing account already exits with this patient id : "+ ex.getMessage());
         return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(InvoiceNotExitsException.class)
+    public ResponseEntity<Map<String , String>> handleInvoiceExitsException(
+            InvoiceNotExitsException ex
+    ) {
+        log.warn("Invoice account exception occurs with this Invoice Id. {}", ex.getMessage());
+        Map<String , String> errors = new HashMap<>();
+        errors.put("message", ": "+ ex.getMessage());
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
 }
