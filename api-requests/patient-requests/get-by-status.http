@@ -1,0 +1,5 @@
+### GET request to example server
+GET http://localhost:8004/api/patients?status=ACTIVE
+Authorization: Bearer {{token}}
+
+###

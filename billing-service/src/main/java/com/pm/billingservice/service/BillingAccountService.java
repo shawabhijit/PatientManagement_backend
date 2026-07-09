@@ -1,5 +1,6 @@
 package com.pm.billingservice.service;
 
+import billing.CloseResponse;
 import com.pm.billingservice.DTO.BillingAccountGrpcResponse;
 import com.pm.billingservice.DTO.BillingAccountRequest;
 import com.pm.billingservice.DTO.BillingAccountResponse;
@@ -61,7 +62,7 @@ public class BillingAccountService {
         );
     }
 
-    public BillingAccountResponse updateBillingAccount(UUID patientId,
+    public BillingAccountGrpcResponse updateBillingAccount(UUID patientId,
                                                        BillingAccountUpdateRequest request) {
         BillingAccount account = billingAccountRepository.findByPatientId(patientId)
                 .orElseThrow(() -> new AccountExitsException("Account not found with patientId: " + patientId));
@@ -73,15 +74,18 @@ public class BillingAccountService {
 
         account = billingAccountRepository.save(account);
 
-        return entityToDto(account);
+        return new BillingAccountGrpcResponse(account.getId(), account.getStatus());
     }
 
-    public void deleteBillingAccount(UUID patientId) {
-        if(!billingAccountRepository.existsByPatientId(patientId)) {
-            throw new AccountExitsException("Billing account is not present with this patient id : " +
-                    patientId);
-        }
-        billingAccountRepository.deleteByPatientId(patientId);
+    public CloseResponse deleteBillingAccount(UUID patientId) {
+        BillingAccount account = billingAccountRepository.findByPatientId(patientId)
+                .orElseThrow(() -> new AccountExitsException("Account not found with patientId: " + patientId));
+        account.setStatus(BillingStatus.CLOSED);
+        account.setUpdatedAt(LocalDateTime.now());
+        billingAccountRepository.save(account);
+        return CloseResponse.newBuilder()
+                .setAccountId(account.getId().toString())
+                .setStatus("CLOSED").build();
     }
 
     private BillingAccountResponse entityToDto(BillingAccount account) {

@@ -36,12 +36,4 @@ public class BillingAccountController {
     public ResponseEntity<List<BillingAccountResponse>> getAccountsByStatus(@RequestParam String status) {
         return ResponseEntity.ok().body(billingAccountService.getByStatus(status));
     }
-
-    @PutMapping("/accounts/{patientId}/update")
-    public ResponseEntity<BillingAccountResponse> updateAccount(
-            @PathVariable UUID patientId,
-            @Validated @RequestBody BillingAccountUpdateRequest request
-    ) {
-        return ResponseEntity.ok().body(billingAccountService.updateBillingAccount(patientId,request));
-    }
 }

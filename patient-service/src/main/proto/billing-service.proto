@@ -6,6 +6,8 @@ option java_package = "billing";
 
 service BillingService {
   rpc CreateBillingAccount (BillingRequest) returns (BillingResponse);
+  rpc UpdateBillingAccount (UpdateRequest) returns (BillingResponse);
+  rpc CloseBillingAccount (CloseRequest) returns (CloseResponse);
 }
 
 message BillingRequest {
@@ -15,6 +17,22 @@ message BillingRequest {
 }
 
 message BillingResponse {
+  string accountId = 1;
+  string status = 2;
+}
+
+message UpdateRequest {
+  string patientId = 1;
+  string name = 2;
+  string email = 3;
+  string status = 4;
+}
+
+message CloseRequest {
+  string patientId = 1;
+}
+
+message CloseResponse {
   string accountId = 1;
   string status = 2;
 }

@@ -74,6 +74,11 @@ public class PatientService {
 
         patient = patientRepository.save(patient);
 
+        String status = patient.getStatus().toString().equals("ACTIVE") ?
+                "ACTIVE" : patient.getStatus().toString().equals("SUSPENDED") ? "SUSPENDED" : "CLOSED";
+
+        billingServiceGrpcClient.updateBillingAccount(patientId.toString(), patient.getName(),patient.getEmail(),status);
+
         return patientEntityToDto(patient);
     }
 
@@ -84,6 +89,7 @@ public class PatientService {
 
         patient.setStatus(PatientStatus.INACTIVE);
         patientRepository.save(patient);
+        billingServiceGrpcClient.closeBillingAccount(patientId.toString());
     }
 
     public PatientResponseDto patientEntityToDto (Patient patient) {

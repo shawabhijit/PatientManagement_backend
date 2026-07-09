@@ -1,8 +1,6 @@
 package com.patientservice.grpc;
 
-import billing.BillingRequest;
-import billing.BillingResponse;
-import billing.BillingServiceGrpc;
+import billing.*;
 import billing.BillingServiceGrpc.BillingServiceBlockingStub;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
@@ -40,6 +38,24 @@ public class BillingServiceGrpcClient {
 
         BillingResponse response = blockingStub.createBillingAccount(request);
         log.info("Received response from Billing Service via GRPC: {}", response);
+        return response;
+    }
+
+    public BillingResponse updateBillingAccount(String patientId , String name , String email, String status) {
+        UpdateRequest request = UpdateRequest.newBuilder()
+                .setPatientId(patientId)
+                .setName(name)
+                .setEmail(email)
+                .setStatus(status).build();
+        BillingResponse response = blockingStub.updateBillingAccount(request);
+        log.info("Received response from Billing Service to update account via GRPC: {}", response);
+        return response;
+    }
+
+    public CloseResponse closeBillingAccount(String patientId) {
+        CloseRequest request = CloseRequest.newBuilder().setPatientId(patientId).build();
+        CloseResponse response = blockingStub.closeBillingAccount(request);
+        log.info("Received response from Billing Service to close account via GRPC: {}", response);
         return response;
     }
 }
