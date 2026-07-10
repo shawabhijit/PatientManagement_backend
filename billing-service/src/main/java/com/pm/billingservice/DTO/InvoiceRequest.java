@@ -5,6 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Getter
 @Setter
@@ -12,6 +13,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class InvoiceRequest {
+    @NotNull(message = "Patient ID is required.")
+    private UUID patientId;
 
     @NotNull(message = "Consultation Fee is required.")
     @PositiveOrZero

@@ -1,18 +1,17 @@
 package com.pm.billingservice.DTO;
 
 import com.pm.billingservice.model.enums.InvoiceStatus;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Getter
+@Setter
 public class InvoiceResponse {
     private UUID billingAccountId;
     private String invoiceNumber;

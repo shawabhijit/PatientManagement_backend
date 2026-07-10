@@ -1,0 +1,5 @@
+### GET request to example server
+GET http://localhost:8004/api/invoices/number/INV-2026-07-10-000001
+Authorization: Bearer {{token}}
+
+###

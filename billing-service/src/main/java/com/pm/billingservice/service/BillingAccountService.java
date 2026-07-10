@@ -11,6 +11,7 @@ import com.pm.billingservice.model.enums.BillingStatus;
 import com.pm.billingservice.repository.BillingAccountRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -42,6 +43,7 @@ public class BillingAccountService {
                 ).toList();
     }
 
+    @Transactional
     public BillingAccountGrpcResponse createBillingAccount(BillingAccountRequest billingAccountRequest) {
         if(billingAccountRepository.existsByPatientId(billingAccountRequest.getPatientId())) {
             throw new AccountExitsException("Billing account with this patient is already exits: " +

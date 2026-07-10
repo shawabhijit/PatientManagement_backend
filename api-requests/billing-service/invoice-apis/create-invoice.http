@@ -1,0 +1,14 @@
+### GET request to example server
+POST http://localhost:8004/api/invoices
+Authorization: Bearer {{token}}
+content-type: application/json
+
+{
+  "patientId" : "2aaad3dc-9254-4b20-bade-85e6e96ff31d",
+  "consultationFee": 500.00,
+  "medicineFee": 1200.00,
+  "labFee": 800.00,
+  "dueDate": "2026-07-20T18:00:00"
+}
+
+###
