@@ -4,6 +4,7 @@ import com.pm.billingservice.DTO.InvoiceRequest;
 import com.pm.billingservice.DTO.InvoiceResponse;
 import com.pm.billingservice.exceptions.AccountExitsException;
 import com.pm.billingservice.exceptions.InvoiceNotExitsException;
+import com.pm.billingservice.kafka.KafkaProducer;
 import com.pm.billingservice.model.BillingAccount;
 import com.pm.billingservice.model.Invoice;
 import com.pm.billingservice.model.enums.InvoiceStatus;
@@ -28,6 +29,7 @@ public class InvoiceService {
 
     private final InvoiceRepository invoiceRepository;
     private final BillingAccountRepository billingAccountRepository;
+    private final KafkaProducer kafkaProducer;
 
     public List<InvoiceResponse> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findAll();
@@ -87,6 +89,8 @@ public class InvoiceService {
 
         invoiceRepository.save(invoice);
 
+        kafkaProducer.sendInvoiceEvent(invoice);
+
         return entityToDto(invoice);
     }
 
@@ -109,6 +113,8 @@ public class InvoiceService {
         invoice.setStatus(InvoiceStatus.CANCELLED);
         billingAccountRepository.save(account);
         invoiceRepository.save(invoice);
+
+        kafkaProducer.sendInvoiceCancelEvent(invoice);
     }
 
     private InvoiceResponse entityToDto(Invoice invoice) {

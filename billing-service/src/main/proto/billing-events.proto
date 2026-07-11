@@ -1,0 +1,43 @@
+syntax = "proto3";
+
+package billing.events;
+
+option java_multiple_files = true;
+
+message BillingAccountCreateEvent {
+  string billingAccountId = 1;
+  string patientId = 2;
+  string patientName = 3;
+  string patientEmail = 4;
+  double outstandingBalance = 5;
+  string status = 6;
+  string createdAt = 7;
+  string updatedAt = 8;
+}
+
+message InvoiceCreateEvent {
+  string invoiceId = 1;
+  string billingAccountId = 2;
+
+  string invoiceNumber = 4;
+
+  double consultationFee = 5;
+  double medicineFee = 6;
+  double labFee = 7;
+
+  double discount = 8;
+  double tax = 9;
+  double totalAmount = 10;
+
+  string status = 11;
+
+  string issueDate = 12;
+  string dueDate = 13;
+}
+
+message InvoiceCancelledEvent {
+  string invoiceId = 1;
+  string patientId = 2;
+  string invoiceNumber = 3;
+  string cancelledAt = 4;
+}

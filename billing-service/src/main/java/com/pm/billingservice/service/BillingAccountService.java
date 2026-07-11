@@ -6,6 +6,7 @@ import com.pm.billingservice.DTO.BillingAccountRequest;
 import com.pm.billingservice.DTO.BillingAccountResponse;
 import com.pm.billingservice.DTO.BillingAccountUpdateRequest;
 import com.pm.billingservice.exceptions.AccountExitsException;
+import com.pm.billingservice.kafka.KafkaProducer;
 import com.pm.billingservice.model.BillingAccount;
 import com.pm.billingservice.model.enums.BillingStatus;
 import com.pm.billingservice.repository.BillingAccountRepository;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 public class BillingAccountService {
 
     private final BillingAccountRepository billingAccountRepository;
+    private final KafkaProducer kafkaProducer;
 
     public List<BillingAccountResponse> getAllBillingAccounts() {
         List<BillingAccount> billingAccounts = billingAccountRepository.findAll();
@@ -53,10 +55,14 @@ public class BillingAccountService {
                 .patientId(billingAccountRequest.getPatientId())
                 .patientEmail(billingAccountRequest.getPatientEmail())
                 .patientName(billingAccountRequest.getPatientName())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .status(BillingStatus.ACTIVE)
                 .build();
 
         account = billingAccountRepository.save(account);
+
+        kafkaProducer.sendBillingEvent(account);
 
         return new BillingAccountGrpcResponse(
                 account.getId(),

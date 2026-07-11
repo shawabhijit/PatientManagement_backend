@@ -4,7 +4,7 @@ Authorization: Bearer {{token}}
 content-type: application/json
 
 {
-  "patientId" : "2aaad3dc-9254-4b20-bade-85e6e96ff31d",
+  "patientId" : "2f3836ad-d79f-4806-9bdc-9dff2799ff00",
   "consultationFee": 500.00,
   "medicineFee": 1200.00,
   "labFee": 800.00,

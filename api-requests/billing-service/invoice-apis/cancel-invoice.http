@@ -1,5 +1,5 @@
 ### GET request to example server
-DELETE http://localhost:8004/api/invoices/477adf64-d331-496d-832e-444c0061d2bf
+DELETE http://localhost:8004/api/invoices/e3742b87-897e-43e7-a49f-36a3677ccfed
 Authorization: Bearer {{token}}
 
 ###
