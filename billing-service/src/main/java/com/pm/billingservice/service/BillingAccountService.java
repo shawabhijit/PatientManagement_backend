@@ -11,6 +11,9 @@ import com.pm.billingservice.model.BillingAccount;
 import com.pm.billingservice.model.enums.BillingStatus;
 import com.pm.billingservice.repository.BillingAccountRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +34,15 @@ public class BillingAccountService {
         return billingAccounts.stream().map(this::entityToDto).collect(Collectors.toList());
     }
 
+    @Cacheable(value = "billing" , key = "#id")
+    public BillingAccountResponse getBillingAccountById(UUID id) {
+        BillingAccount billingAccount = billingAccountRepository.findById(id).orElseThrow(
+                () -> new AccountExitsException("Billing account with id " + id + " not found")
+        );
+        return entityToDto(billingAccount);
+    }
+
+    @Cacheable(value = "billing",key = "#patientId")
     public BillingAccountResponse getAccountByPatientId(UUID patientId) {
         BillingAccount account = billingAccountRepository.findByPatientId(patientId)
                 .orElseThrow(() -> new AccountExitsException("Account not found with patientId: " + patientId));
@@ -45,6 +57,7 @@ public class BillingAccountService {
                 ).toList();
     }
 
+    @CachePut(value = "billing" , key= "#result.id")
     @Transactional
     public BillingAccountGrpcResponse createBillingAccount(BillingAccountRequest billingAccountRequest) {
         if(billingAccountRepository.existsByPatientId(billingAccountRequest.getPatientId())) {
@@ -70,6 +83,7 @@ public class BillingAccountService {
         );
     }
 
+    @CachePut(value = "billing" , key = "#result.id")
     public BillingAccountGrpcResponse updateBillingAccount(UUID patientId,
                                                        BillingAccountUpdateRequest request) {
         BillingAccount account = billingAccountRepository.findByPatientId(patientId)
@@ -85,6 +99,7 @@ public class BillingAccountService {
         return new BillingAccountGrpcResponse(account.getId(), account.getStatus());
     }
 
+    @CacheEvict(value = "billing" , key = "#result.accountId")
     public CloseResponse deleteBillingAccount(UUID patientId) {
         BillingAccount account = billingAccountRepository.findByPatientId(patientId)
                 .orElseThrow(() -> new AccountExitsException("Account not found with patientId: " + patientId));
@@ -98,6 +113,8 @@ public class BillingAccountService {
 
     private BillingAccountResponse entityToDto(BillingAccount account) {
         return BillingAccountResponse.builder()
+                .id(account.getId())
+                .patientId(account.getPatientId())
                 .patientEmail(account.getPatientEmail())
                 .patientName(account.getPatientName())
                 .outstandingBalance(account.getOutstandingBalance())

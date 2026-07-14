@@ -29,6 +29,12 @@ public class BillingAccountController {
         return ResponseEntity.ok().body(billingAccountService.getAllBillingAccounts());
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "Get Billing Account by ID.")
+    public ResponseEntity<BillingAccountResponse> getBillingAccountById(@PathVariable UUID id) {
+        return ResponseEntity.ok().body(billingAccountService.getBillingAccountById(id));
+    }
+
     @GetMapping("/accounts/{patientId}")
     @Operation(summary = "Get Billing account by Patient ID")
     public ResponseEntity<BillingAccountResponse> getAccountByPatientID(@PathVariable UUID patientId) {

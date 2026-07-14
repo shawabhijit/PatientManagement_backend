@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 
 @Getter
@@ -13,6 +14,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class BillingAccountResponse {
+    private UUID id;
+    private UUID patientId;
     private String patientName;
     private String patientEmail;
     private BigDecimal outstandingBalance;

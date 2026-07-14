@@ -13,6 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class InvoiceResponse {
+    private UUID id;
     private UUID billingAccountId;
     private String invoiceNumber;
     private BigDecimal consultationFee;

@@ -11,9 +11,11 @@ import com.pm.billingservice.model.enums.InvoiceStatus;
 import com.pm.billingservice.repository.BillingAccountRepository;
 import com.pm.billingservice.repository.InvoiceRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -31,18 +33,22 @@ public class InvoiceService {
     private final BillingAccountRepository billingAccountRepository;
     private final KafkaProducer kafkaProducer;
 
+    private static final String INVOICE_CACHE_NAME = "invoice";
+
     public List<InvoiceResponse> getAllInvoices() {
         List<Invoice> invoices = invoiceRepository.findAll();
         return invoices.stream().map(this::entityToDto).collect(Collectors.toList());
     }
 
-    public InvoiceResponse getInvoiceById(@PathVariable UUID id) {
+    @Cacheable(value = INVOICE_CACHE_NAME , key = "#id")
+    public InvoiceResponse getInvoiceById(UUID id) {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow(
                 () -> new InvoiceNotExitsException("Invoice not found with this id : " + id.toString())
         );
         return entityToDto(invoice);
     }
 
+    @Cacheable(value = INVOICE_CACHE_NAME , key = "#invoiceNumber")
     public InvoiceResponse getInvoiceByInvoiceNumber(String invoiceNumber) {
         Invoice invoice = invoiceRepository.findByInvoiceNumber(invoiceNumber).orElseThrow(
                 () -> new InvoiceNotExitsException("Invoice not found with this number : " + invoiceNumber)
@@ -55,6 +61,7 @@ public class InvoiceService {
         return invoices.stream().map(this::entityToDto).collect(Collectors.toList());
     }
 
+    @CachePut(value = INVOICE_CACHE_NAME, key="#result.id")
     @Transactional
     public InvoiceResponse createInvoice(InvoiceRequest invoiceRequest) {
         BillingAccount account = billingAccountRepository
@@ -87,13 +94,14 @@ public class InvoiceService {
         account.setOutstandingBalance(account.getOutstandingBalance().add(total));
         billingAccountRepository.save(account);
 
-        invoiceRepository.save(invoice);
+        invoice = invoiceRepository.save(invoice);
 
         kafkaProducer.sendInvoiceEvent(invoice);
 
         return entityToDto(invoice);
     }
 
+    @CacheEvict(value = INVOICE_CACHE_NAME, key = "#id")
     @Transactional
     public void deleteInvoice(UUID id) {
         Invoice invoice = invoiceRepository.findById(id).orElseThrow(
@@ -119,6 +127,7 @@ public class InvoiceService {
 
     private InvoiceResponse entityToDto(Invoice invoice) {
         return InvoiceResponse.builder()
+                .id(invoice.getId())
                 .invoiceNumber(invoice.getInvoiceNumber())
                 .billingAccountId(invoice.getBillingAccount().getId())
                 .consultationFee(invoice.getConsultationFee())

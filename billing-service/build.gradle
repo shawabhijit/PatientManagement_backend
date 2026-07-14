@@ -40,6 +40,9 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-kafka'
 	implementation 'org.springframework.kafka:spring-kafka-test'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	testImplementation 'org.springframework.boot:spring-boot-starter-data-redis-test'
+
 	// Java 9+ annotation replacement (jakarta, not tomcat)
 	compileOnly 'jakarta.annotation:jakarta.annotation-api:2.1.1'
 	testImplementation 'org.springframework.boot:spring-boot-starter-webmvc-test'
