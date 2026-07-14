@@ -10,12 +10,17 @@ import com.patientservice.model.Patient;
 import com.patientservice.model.enums.PatientStatus;
 import com.patientservice.repository.PatientRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PatientService {
@@ -23,6 +28,8 @@ public class PatientService {
     private final PatientRepository patientRepository;
     private final BillingServiceGrpcClient billingServiceGrpcClient;
     private final KafkaProducer kafkaProducer;
+
+    private static final String PATIENTS_CACHE_NAME = "patients";
 
     public List<PatientResponseDto> getPatients () {
         List<Patient> patients = patientRepository.findAll();
@@ -36,13 +43,22 @@ public class PatientService {
                 .map(this::patientEntityToDto).toList();
     }
 
-    public PatientResponseDto getPatientById(UUID patientId) {
-        Patient patient = patientRepository.findById(patientId).orElseThrow(
-                () -> new PatientNotFoundException("Patient not found with this id : " + patientId)
+    @Cacheable(value = PATIENTS_CACHE_NAME , key = "#id")
+    public PatientResponseDto getPatientById(UUID id) {
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with this id : " + id)
         );
+
+        if(patient.getStatus().equals(PatientStatus.INACTIVE)) {
+            throw new PatientNotFoundException("Patient is not exits with this id " + id);
+        }
+
+        log.info("Getting patient from database.");
+        log.info("Patient found with id : " + id);
         return patientEntityToDto(patient);
     }
 
+    @CachePut(value = PATIENTS_CACHE_NAME , key = "#result.id")
     public PatientResponseDto createPatient(PatientRequestDto patientRequestDto) {
         if(patientRepository.existsByEmail(patientRequestDto.getEmail())) {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDto.getEmail());
@@ -59,11 +75,12 @@ public class PatientService {
         return patientEntityToDto(patient);
     }
 
-    public PatientResponseDto updatePatient(UUID patientId,PatientRequestDto patientRequestDto) {
-        Patient patient = patientRepository.findById(patientId).orElseThrow(
-                () -> new PatientNotFoundException("Patient not found with this id : " + patientId)
+    @CachePut(value = PATIENTS_CACHE_NAME , key = "#id")
+    public PatientResponseDto updatePatient(UUID id,PatientRequestDto patientRequestDto) {
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with this id : " + id)
         );
-        if(patientRepository.existsByEmailAndIdNot(patientRequestDto.getEmail() , patientId)) {
+        if(patientRepository.existsByEmailAndIdNot(patientRequestDto.getEmail() , id)) {
             throw new EmailAlreadyExistsException("A patient with this email already exists " + patientRequestDto.getEmail());
         }
 
@@ -77,19 +94,20 @@ public class PatientService {
         String status = patient.getStatus().toString().equals("ACTIVE") ?
                 "ACTIVE" : patient.getStatus().toString().equals("SUSPENDED") ? "SUSPENDED" : "CLOSED";
 
-        billingServiceGrpcClient.updateBillingAccount(patientId.toString(), patient.getName(),patient.getEmail(),status);
+        billingServiceGrpcClient.updateBillingAccount(id.toString(), patient.getName(),patient.getEmail(),status);
 
         return patientEntityToDto(patient);
     }
 
-    public void deletePatient(UUID patientId) {
-        Patient patient = patientRepository.findById(patientId).orElseThrow(
-                () -> new PatientNotFoundException("Patient not found with this id : " + patientId)
+    @CacheEvict(value = PATIENTS_CACHE_NAME, key = "#id")
+    public void deletePatient(UUID id) {
+        Patient patient = patientRepository.findById(id).orElseThrow(
+                () -> new PatientNotFoundException("Patient not found with this id : " + id)
         );
 
         patient.setStatus(PatientStatus.INACTIVE);
         patientRepository.save(patient);
-        billingServiceGrpcClient.closeBillingAccount(patientId.toString());
+        billingServiceGrpcClient.closeBillingAccount(id.toString());
     }
 
     public PatientResponseDto patientEntityToDto (Patient patient) {
